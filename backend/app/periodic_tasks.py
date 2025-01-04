@@ -6,10 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 async def init() -> None:
-    from app.service import InitDbService
-
-    init_db = InitDbService()
-    await init_db()
+    ...
 
 
 async def main() -> None:
