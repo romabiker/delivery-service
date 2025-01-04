@@ -16,6 +16,12 @@ services:
       timeout: 10s
     env_file:
       - .env
+    environment:
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER?Variable not set}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?Variable not set}
 
   prestart:
     image: delivery-prestart
@@ -29,17 +35,17 @@ services:
     command: bash scripts/prestart.sh
     env_file:
       - .env
-#    environment:
-#      - DOMAIN=${DOMAIN}
-#      - ENVIRONMENT=${ENVIRONMENT}
-#      - SECRET_KEY=${SECRET_KEY?Variable not set}
-#      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
-#      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
-#      - MYSQL_SERVER=db
-#      - MYSQL_PORT=${MYSQL_PORT}
-#      - MYSQL_DB=${MYSQL_DB}
-#      - MYSQL_USER=${MYSQL_USER?Variable not set}
-#      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
+      - MYSQL_SERVER=db
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER?Variable not set}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
 
   backend:
     image: delivery-backend
@@ -61,17 +67,17 @@ services:
 
     build:
       context: ./backend
-#    environment:
-#      - DOMAIN=${DOMAIN}
-#      - ENVIRONMENT=${ENVIRONMENT}
-#      - SECRET_KEY=${SECRET_KEY?Variable not set}
-#      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
-#      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
-#      - MYSQL_SERVER=db
-#      - MYSQL_PORT=${MYSQL_PORT}
-#      - MYSQL_DB=${MYSQL_DB}
-#      - MYSQL_USER=${MYSQL_USER?Variable not set}
-#      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
+      - MYSQL_SERVER=db
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER?Variable not set}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
 
   periodic_tasks:
     image: delivery-periodic-tasks
@@ -88,17 +94,17 @@ services:
     command: bash scripts/periodic-tasks.sh
     env_file:
       - .env
-#    environment:
-#      - DOMAIN=${DOMAIN}
-#      - ENVIRONMENT=${ENVIRONMENT}
-#      - SECRET_KEY=${SECRET_KEY?Variable not set}
-#      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
-#      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
-#      - MYSQL_SERVER=db
-#      - MYSQL_PORT=${MYSQL_PORT}
-#      - MYSQL_DB=${MYSQL_DB}
-#      - MYSQL_USER=${MYSQL_USER?Variable not set}
-#      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
+      - MYSQL_SERVER=db
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER?Variable not set}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
 
 
   redis:

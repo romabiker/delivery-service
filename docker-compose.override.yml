@@ -45,7 +45,7 @@ services:
 
   jupyterlab:
     <<: *backend
-    container_name: tws-jupyterlab
+    container_name: delivery-jupyterlab
 
     ports:
       - "8889:8889"
@@ -56,17 +56,16 @@ services:
       - --no-browser
       - --allow-root
       - --autoreload
-
-#    env_file:
-#      - .env
-#    environment:
-#      - DOMAIN=${DOMAIN}
-#      - ENVIRONMENT=${ENVIRONMENT}
-#      - SECRET_KEY=${SECRET_KEY?Variable not set}
-#      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
-#      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
-#      - POSTGRES_SERVER=db
-#      - POSTGRES_PORT=${POSTGRES_PORT}
-#      - POSTGRES_DB=${POSTGRES_DB}
-#      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
-#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+    env_file:
+      - .env
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
+      - MYSQL_SERVER=db
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER?Variable not set}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
