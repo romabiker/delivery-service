@@ -49,7 +49,7 @@ async def get_list(
     register_or_login_user = RegisterOrLoginUserService()
     user_dto = await register_or_login_user(db_session, session_id)
     response.set_cookie(key="session_id", value=user_dto.session)
-    
+
     filters = (Delivery.user_id == user_dto.id)
     if delivery_type_id:
         filters &= (Delivery.type_id == delivery_type_id)
