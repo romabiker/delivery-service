@@ -1,7 +1,6 @@
 import logging
 
-import aioredis
-from aioredis import RedisError
+from redis import asyncio as aioredis
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
 from app.core.config import settings
@@ -30,7 +29,7 @@ async def connect_redis():
     try:
         await redis.ping()
         logger.info("Redis connected")
-    except RedisError as err:
+    except aioredis.RedisError as err:
         logger.error(str(err))
         raise err
 

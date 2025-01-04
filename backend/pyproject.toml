@@ -14,10 +14,10 @@ dependencies = [
     "bcrypt==4.0.1",
     "pydantic-settings<3.0.0,>=2.2.1",
     "sentry-sdk[fastapi]<2.0.0,>=1.40.6",
-    "sqlalchemy[asyncio]==2.0.35",
-    "aiomysql==0.2.0",
+    "sqlalchemy[asyncio]<3.0.0,>=2.0.35",
+    "aiomysql<1.0.0,>=0.2.0",
     "tenacity<9.0.0,>=8.2.3",
-    "aioredis==2.0.1",
+    "redis[hiredis]<6.0.0,>=5.2.1",
 ]
 
 [tool.uv]
