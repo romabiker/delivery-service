@@ -20,7 +20,7 @@ wait_seconds = 1
 )
 async def connect_redis():
     redis = aioredis.from_url(
-        settings.REDIS_URL,
+        str(settings.REDIS_URL),
         max_connections=settings.REDIS_MAX_CONNECTIONS,
         decode_responses=True,
         encoding="utf-8",
