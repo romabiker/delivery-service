@@ -1,11 +1,7 @@
 import secrets
 from typing import Literal
 
-from pydantic import (
-    computed_field,
-    MySQLDsn,
-    RedisDsn
-)
+from pydantic import MySQLDsn, RedisDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -30,29 +26,16 @@ class Settings(BaseSettings):
     MYSQL_PASSWORD: str = ""
     MYSQL_DB: str = ""
 
-    # @computed_field  # type: ignore[prop-decorator]
-    # @property
-    # def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
-    #     return MultiHostUrl.build(
-    #         scheme="postgresql+psycopg",
-    #         username=self.POSTGRES_USER,
-    #         password=self.POSTGRES_PASSWORD,
-    #         host=self.POSTGRES_SERVER,
-    #         port=self.POSTGRES_PORT,
-    #         path=self.POSTGRES_DB,
-    #     )
-
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_ASYNC_DATABASE_URI(self) -> MySQLDsn:
         return MultiHostUrl.build(
             scheme="mysql+aiomysql",
-            username=self.MYSQl_USER,
-            password=self.MYSQl_PASSWORD,
-            host=self.MYSQl_SERVER,
-            port=self.MYSQl_PORT,
-            path=self.MYSQl_DB,
-            query="charset=utf8mb4"
+            username=self.MYSQL_USER,
+            password=self.MYSQL_PASSWORD,
+            host=self.MYSQL_SERVER,
+            port=self.MYSQL_PORT,
+            path=self.MYSQL_DB,
         )
 
     FIRST_SUPERUSER: str
