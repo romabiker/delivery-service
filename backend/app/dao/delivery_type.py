@@ -21,7 +21,7 @@ class DeliveryTypeDAO(
             await redis.set(cache_key, to_json(item.model_dump() for item in delivery_types), ex=expire)
         else:
             delivery_types_dict_data = from_json(delivery_types_json)
-            delivery_types = [self.item_dto.model_construct(item) for item in delivery_types_dict_data]
+            delivery_types = [self.item_dto_cls.model_construct(**item) for item in delivery_types_dict_data]
         return delivery_types
 
     async def get_all_names(
@@ -46,7 +46,7 @@ class DeliveryTypeDAO(
     ) -> list[DeliveryTypeDTO]:
         select_st = select(self.model)
         res = await db.execute(select_st)
-        return [self.item_dto.model_construct(item) for item in res.scalars().all()]
+        return [self.item_dto_cls.model_validate(item) for item in res.scalars().all()]
 
     async def exists(
         self, db: AsyncSession, redis: aioredis.Redis, id_in: int

@@ -15,9 +15,9 @@ class DAOBase[
     UpdateDTO: BaseModel,
     ItemDTO: BaseModel,
 ]:
-    def __init__(self, model: type[ModelType], item_dto: type[ItemDTO]):
+    def __init__(self, model: type[ModelType], item_dto_cls: type[ItemDTO]):
         """
-        DAO object with default methods to Create, Read, Update, Delete (CRUD).
+        DAO generic base class with default methods to Create, Read, Update, Delete (CRUD).
 
         **Parameters**
 
@@ -25,7 +25,7 @@ class DAOBase[
         * `model`: A Pydantic BaseModel model class
         """
         self.model = model
-        self.item_dto = item_dto
+        self.item_dto_cls = item_dto_cls
 
     async def get(
         self,
@@ -35,7 +35,7 @@ class DAOBase[
         res = await db.execute(select(self.model).where(filter_expr))
         orm_obj = res.scalars().one_or_none()
         if orm_obj:
-            return self.item_dto.model_validate(orm_obj)
+            return self.item_dto_cls.model_validate(orm_obj)
 
     async def get_list(
         self,
@@ -60,7 +60,7 @@ class DAOBase[
 
         res = await db.execute(select_st)
         return [
-            self.item_dto.model_validate(orm_obj) for orm_obj in res.scalars().all()
+            self.item_dto_cls.model_validate(orm_obj) for orm_obj in res.scalars().all()
         ]
 
     async def create(self, db: AsyncSession, obj_in: CreateDTO) -> ItemDTO:
@@ -68,7 +68,7 @@ class DAOBase[
         db.add(db_obj)
         await db.commit()
         await db.refresh(db_obj)
-        return self.item_dto.model_validate(db_obj)
+        return self.item_dto_cls.model_validate(db_obj)
 
     async def update(
         self,

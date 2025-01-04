@@ -3,7 +3,7 @@ from app.dto import DeliveryCreateDTO, DeliveryDTO, DeliveryUpdateDTO
 from app.models import Delivery
 
 
-class UserDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, DeliveryDTO]): ...
+class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, DeliveryDTO]): ...
 
 
-delivery_dao = UserDAO(Delivery, DeliveryDTO)
+delivery_dao = DeliveryDAO(Delivery, DeliveryDTO)

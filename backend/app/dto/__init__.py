@@ -2,6 +2,7 @@ from .delivery import (
     DeliveryApiInDTO,
     DeliveryCreateDTO,
     DeliveryDTO,
+    DeliveryPageNumberPagination,
     DeliveryUpdateDTO,
 )
 from .delivery_type import DeliveryTypeCreateDTO, DeliveryTypeDTO, DeliveryTypeUpdateDTO
@@ -18,4 +19,5 @@ __all__ = [
     'DeliveryTypeCreateDTO',
     'DeliveryTypeDTO',
     'DeliveryTypeUpdateDTO',
+    'DeliveryPageNumberPagination'
 ]
