@@ -32,16 +32,22 @@ services:
       - ./backend/htmlcov:/app/htmlcov
       - ./backend/app/alembic/versions/:/app/app/alembic/versions/
 
+  taskiq-scheduler:
+    restart: "no"
+
+  taskiq-worker:
+    restart: "no"
+
   redis:
     restart: "no"
     ports:
       - "6379:6379"
 
-#  rabbitmq:
-#    restart: "no"
-#    ports:
-#      - "5672:5672"
-#      - "15672:15672"
+  rmq:
+    restart: "no"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   jupyterlab:
     <<: *backend

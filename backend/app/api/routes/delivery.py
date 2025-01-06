@@ -9,12 +9,17 @@ from app.dao import delivery_dao
 from app.dto import DeliveryApiInDTO, DeliveryDTO, DeliveryPageNumberPagination
 from app.models import Delivery
 from app.service import CreateDeliveryService, RegisterOrLoginUserService
+from app.tasks.delivery import delivery_calculate_task
 
 router = APIRouter(tags=["delivery"], prefix="/delivery")
 
 
-@router.post("", status_code=201, response_model=DeliveryDTO)
-async def update_or_create(
+@router.post(
+    "/create_and_calculate_by_periodic_task",
+    status_code=201,
+    response_model=DeliveryDTO,
+)
+async def create_and_calculate_by_periodic_task(
     delivery_in: DeliveryApiInDTO,
     response: Response,
     db_session: SessionDep,
@@ -31,6 +36,33 @@ async def update_or_create(
     response.set_cookie(key="session_id", value=user_dto.session)
     create_delivery = CreateDeliveryService()
     delivery_dto = await create_delivery(db_session, redis, delivery_in, user_dto.id)
+    return delivery_dto
+
+
+@router.post(
+    "/create_and_calculate_by_delayed_task", status_code=201, response_model=DeliveryDTO
+)
+async def create_and_calculate_by_delayed_task(
+    delivery_in: DeliveryApiInDTO,
+    response: Response,
+    db_session: SessionDep,
+    redis: RedisDep,
+    session_id: Annotated[str | None, Cookie()] = None,
+) -> DeliveryDTO:
+    """
+    Register or login user from session_id request cookies. Create delivery.
+    Return delivery_dto.id
+    """
+
+    register_or_login_user = RegisterOrLoginUserService()
+    user_dto = await register_or_login_user(db_session, session_id)
+    response.set_cookie(key="session_id", value=user_dto.session)
+
+    create_delivery = CreateDeliveryService()
+    delivery_dto = await create_delivery(db_session, redis, delivery_in, user_dto.id)
+
+    await delivery_calculate_task.kiq(delivery_dto.id)
+
     return delivery_dto
 
 

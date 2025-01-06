@@ -6,6 +6,7 @@ from fastapi.routing import APIRoute
 from app.api.main import api_router
 from app.core.config import settings
 from app.core.db import async_engine
+from app.core.rabbit.lifespan import init_rabbit, shutdown_rabbit
 from app.core.redis import connect_redis
 
 
@@ -15,8 +16,19 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from app.tkq import broker
+
     app.state.redis = await connect_redis()
+    init_rabbit(app)
+    if not broker.is_worker_process:
+        await broker.startup()
+
     yield
+
+    if not broker.is_worker_process:
+        await broker.shutdown()
+
+    await shutdown_rabbit(app)
     await async_engine.dispose()
     await app.state.redis.close()
 

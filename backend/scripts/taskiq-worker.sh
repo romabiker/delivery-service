@@ -3,4 +3,4 @@
 set -e
 set -x
 
-python app/periodic_tasks.py
+taskiq worker app.tkq:broker

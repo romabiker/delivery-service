@@ -12,6 +12,33 @@ from app.models import Delivery
 
 
 class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, DeliveryDTO]):
+    async def calculate_cost_of_delivery_rub(
+        self,
+        db: AsyncSession,
+        usd_to_rub: float,
+        delivery_id: int,
+    ) -> bool:
+        select_st = (
+            select(self.model)
+            .where(self.model.id == delivery_id)
+            .with_for_update(skip_locked=True)
+        )
+        res = await db.execute(select_st)
+        delivery = res.scalars().one_or_none()
+        deliveries_update_data = [
+            {
+                "id": delivery.id,
+                "cost_of_delivery_rub": calculate_cost_of_delivery(
+                    delivery, usd_to_rub
+                ),
+            }
+        ]
+
+        await db.execute(update(self.model), deliveries_update_data)
+        await db.commit()
+
+        return delivery is not None
+
     async def calculate_cost_of_delivery_rub_in_bulk(
         self,
         db: AsyncSession,
@@ -26,11 +53,13 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
         )
         deliveries_update_data = []
         for delivery in deliveries:
-            cost_of_delivery_rub = (
-                delivery.weight_kg * 0.5 + delivery.cost_of_content_usd * 0.01
-            ) * usd_to_rub
             deliveries_update_data.append(
-                {"id": delivery.id, "cost_of_delivery_rub": cost_of_delivery_rub}
+                {
+                    "id": delivery.id,
+                    "cost_of_delivery_rub": calculate_cost_of_delivery(
+                        delivery, usd_to_rub
+                    ),
+                }
             )
         if deliveries_update_data:
             await db.execute(update(self.model), deliveries_update_data)
@@ -62,6 +91,10 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
 
         res = await db.execute(select_st)
         return res.scalars().all()
+
+
+def calculate_cost_of_delivery(delivery: Delivery, usd_to_rub):
+    return (delivery.weight_kg * 0.5 + delivery.cost_of_content_usd * 0.01) * usd_to_rub
 
 
 delivery_dao = DeliveryDAO(Delivery, DeliveryDTO)

@@ -57,6 +57,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      rmq:
+        condition: service_healthy
       redis:
         condition: service_healthy
       prestart:
@@ -83,10 +85,12 @@ services:
       - MYSQL_USER=${MYSQL_USER?Variable not set}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
 
-  periodic_tasks:
-    image: delivery-periodic-tasks
+
+  taskiq-scheduler:
+    image: delivery-scheduler
     build:
       context: ./backend
+    restart: always
     networks:
       - default
     depends_on:
@@ -94,10 +98,52 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rmq:
+        condition: service_healthy
       prestart:
         condition: service_completed_successfully
+#    command:
+#      - taskiq
+#      - scheduler
+#      - app.tkq:scheduler
 
-    command: bash scripts/periodic-tasks.sh
+    command: bash scripts/taskiq-scheduler.sh
+    env_file:
+      - .env
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
+      - MYSQL_SERVER=db
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER?Variable not set}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
+
+  taskiq-worker:
+    image: delivery-worker
+    build:
+      context: ./backend
+    restart: always
+    networks:
+      - default
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rmq:
+        condition: service_healthy
+      prestart:
+        condition: service_completed_successfully
+#    command:
+#      - taskiq
+#      - worker
+#      - app.tkq:broker
+
+    command: bash scripts/taskiq-worker.sh
     env_file:
       - .env
     environment:
@@ -123,10 +169,20 @@ services:
       timeout: 5s
       retries: 5
 
-#  rabbitmq:
-#    image: rabbitmq:4.0.5-management
-#    container_name: delivery-rabbitmq
-#    restart: always
+
+  rmq:
+    image: rabbitmq:4.0.5-management
+    container_name: delivery-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    healthcheck:
+      test: rabbitmq-diagnostics check_running -q
+      interval: 3s
+      timeout: 3s
+      retries: 50
 
 volumes:
   app-db-data:

@@ -36,11 +36,11 @@ class CreateDeliveryService(ServiceBase):
         return delivery_dto
 
 
-class DeliveryCalculateService(ServiceBase):
+class DeliveryCalculateInBulkService(ServiceBase):
     def __init__(self, redis: aioredis.Redis):
         self.redis = redis
 
-    async def __call__(self) -> None:
+    async def __call__(self) -> int | None:
         logger.info("Starting calculate deliveries")
         get_usd_exchange_rate = GetUsdExсhangeRateService(self.redis)
         usd_to_rub = await get_usd_exchange_rate()
@@ -48,19 +48,39 @@ class DeliveryCalculateService(ServiceBase):
             logger.error(
                 "Stopped cost of deliveries calculation because usd_to_rub rate was not obtained"
             )
-            return
+            return None
 
         batch_size = 1000
+        calculated_cnt = 0
 
         async with async_session_maker() as session:
             while True:
-                calculated_items = (
-                    await delivery_dao.calculate_cost_of_delivery_rub_in_bulk(
-                        session, usd_to_rub, batch_size
-                    )
+                calculated = await delivery_dao.calculate_cost_of_delivery_rub_in_bulk(
+                    session, usd_to_rub, batch_size
                 )
-                logger.info("Calculated {} deliveries")
-                if calculated_items == 0:
+                calculated_cnt += calculated
+                logger.info(f"Calculated deliveries: {calculated}")
+                if calculated == 0:
                     break
 
+        logger.info(f"All calculated deliveries: {calculated_cnt}")
         logger.info("Finished calculating deliveries")
+        return calculated_cnt
+
+
+class DeliveryCalculateService(ServiceBase):
+    async def __call__(self, delivery_id: int, redis: aioredis.Redis) -> bool:
+        get_usd_exchange_rate = GetUsdExсhangeRateService(redis)
+        usd_to_rub = await get_usd_exchange_rate()
+        if usd_to_rub is None:
+            logger.error(
+                "Stopped cost of deliveries calculation for delivery#:%s because usd_to_rub rate was not obtained",
+                delivery_id,
+            )
+            return False
+
+        async with async_session_maker() as session:
+            is_calculated = await delivery_dao.calculate_cost_of_delivery_rub(
+                session, usd_to_rub, delivery_id
+            )
+        return is_calculated
