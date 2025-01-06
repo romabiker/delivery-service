@@ -3,18 +3,16 @@
 import asyncio
 
 import pytest
-from app.api.deps import get_async_session
-from app.models import User, TronWallet
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete
-
-
-from app.core.config import settings
-from app.main import app
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
-
-from app.core.db import create_engine_kwargs
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from starlette.requests import Request
+
+from app.api.deps import get_async_session
+from app.core.config import settings
+from app.core.db import create_engine_kwargs
+from app.main import app
+from app.models import Delivery, User
 
 
 @pytest.fixture(scope="session")
@@ -33,13 +31,13 @@ def event_loop(request: Request):
 @pytest.fixture(scope="session", autouse=True)
 async def session_maker(anyio_backend):
     engine_kwargs = create_engine_kwargs()
-    engine_kwargs['echo'] = False
+    engine_kwargs["echo"] = False
     async_engine = create_async_engine(**create_engine_kwargs())
     async_session_maker = async_sessionmaker(async_engine, expire_on_commit=False)
     await clear_db(async_session_maker)
 
     yield async_session_maker
-    
+
     await clear_db(async_session_maker)
 
     await async_engine.dispose()
@@ -52,7 +50,10 @@ async def client(session_maker: async_sessionmaker):
             yield session
 
     app.dependency_overrides[get_async_session] = override_get_async_session
-    async with AsyncClient(transport=ASGITransport(app=app), base_url=f'http://0.0.0.0:8000{settings.API_V1_STR}') as async_client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url=f"http://0.0.0.0:8000{settings.API_V1_STR}",
+    ) as async_client:
         yield async_client
 
 
@@ -64,6 +65,6 @@ async def session(session_maker: async_sessionmaker):
 
 async def clear_db(session_maker: async_sessionmaker) -> None:
     async with session_maker() as session:
+        await session.execute(delete(Delivery))
         await session.execute(delete(User))
-        await session.execute(delete(TronWallet))
         await session.commit()
