@@ -20,6 +20,7 @@ async def lifespan(app: FastAPI):
     await async_engine.dispose()
     await app.state.redis.close()
 
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",

@@ -96,7 +96,9 @@ class DAOBase[
         return
 
     async def count(
-        self, db: AsyncSession, filter_expr: BinaryExpression[Any] | ColumnElement[Any] | None = None
+        self,
+        db: AsyncSession,
+        filter_expr: BinaryExpression[Any] | ColumnElement[Any] | None = None,
     ) -> int:
         select_st = select(func.count(self.model.id))
 

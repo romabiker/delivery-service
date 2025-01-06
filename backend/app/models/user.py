@@ -11,6 +11,8 @@ def generate_uuid():
 
 
 class User(IdBase):
-    session: Mapped[str] = mapped_column(String(255), default=generate_uuid, nullable=False, unique=True, index=True)
+    session: Mapped[str] = mapped_column(
+        String(255), default=generate_uuid, nullable=False, unique=True, index=True
+    )
     email: Mapped[str | None] = mapped_column(String(255))
     full_name: Mapped[str | None] = mapped_column(String(255))

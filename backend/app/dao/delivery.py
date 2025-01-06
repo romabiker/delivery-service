@@ -12,18 +12,26 @@ from app.models import Delivery
 
 
 class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, DeliveryDTO]):
-
     async def calculate_cost_of_delivery_rub_in_bulk(
         self,
         db: AsyncSession,
         usd_to_rub: float,
         batch_size: int = 1000,
     ) -> int:
-        deliveries = await self._select_for_update(db, filter_expr=and_(Delivery.cost_of_delivery_rub == 0), limit=batch_size, order='id')
+        deliveries = await self._select_for_update(
+            db,
+            filter_expr=and_(Delivery.cost_of_delivery_rub == 0),
+            limit=batch_size,
+            order="id",
+        )
         deliveries_update_data = []
         for delivery in deliveries:
-            cost_of_delivery_rub = (delivery.weight_kg * 0.5 + delivery.cost_of_content_usd * 0.01) * usd_to_rub
-            deliveries_update_data.append({'id': delivery.id, 'cost_of_delivery_rub': cost_of_delivery_rub})
+            cost_of_delivery_rub = (
+                delivery.weight_kg * 0.5 + delivery.cost_of_content_usd * 0.01
+            ) * usd_to_rub
+            deliveries_update_data.append(
+                {"id": delivery.id, "cost_of_delivery_rub": cost_of_delivery_rub}
+            )
         if deliveries_update_data:
             await db.execute(update(self.model), deliveries_update_data)
             await db.commit()

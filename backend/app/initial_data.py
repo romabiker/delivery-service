@@ -6,6 +6,7 @@ from app.core.db import async_session_maker
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 async def init() -> None:
     from app.service import InitDbService
 

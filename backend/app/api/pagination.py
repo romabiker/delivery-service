@@ -13,7 +13,9 @@ class PageNumberPagination(BaseModel):
     prev: str | None = None
 
 
-def get_page_number_url(request: Request, page: int, per_page: int, total: int) -> str | None:
+def get_page_number_url(
+    request: Request, page: int, per_page: int, total: int
+) -> str | None:
     if page * per_page > total or page <= 0:
         return None
 

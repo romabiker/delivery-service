@@ -10,11 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class CreateInitialDeliveryTypesService(ServiceBase):
-    async def __call__(
-        self, session: AsyncSession
-    ):
-        types_names = ['одежда', 'электроника', 'разное']
+    async def __call__(self, session: AsyncSession):
+        types_names = ["одежда", "электроника", "разное"]
         names_exists = await delivery_type_dao.get_all_names(session)
-        types_create = [DeliveryTypeCreateDTO(name=name) for name in types_names if name not in names_exists]
+        types_create = [
+            DeliveryTypeCreateDTO(name=name)
+            for name in types_names
+            if name not in names_exists
+        ]
         if len(types_create):
             await delivery_type_dao.bulk_create(session, types_create)

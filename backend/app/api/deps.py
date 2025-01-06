@@ -19,4 +19,5 @@ SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 async def get_async_redis(rq: Request) -> aioredis.Redis:
     return rq.app.state.redis
 
+
 RedisDep = Annotated[aioredis.Redis, Depends(get_async_redis)]

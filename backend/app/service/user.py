@@ -11,8 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 class RegisterOrLoginUserService(ServiceBase):
-
-    async def __call__(self, db_session: AsyncSession, session_uuid: str | None, full_name: str | None = None) -> UserDTO:
+    async def __call__(
+        self,
+        db_session: AsyncSession,
+        session_uuid: str | None,
+        full_name: str | None = None,
+    ) -> UserDTO:
         user_dto = None
         if session_uuid is not None:
             user_dto = await user_dao.get_by_uuid(db_session, session_uuid)
@@ -22,6 +26,6 @@ class RegisterOrLoginUserService(ServiceBase):
                 db_session,
                 UserCreateDTO.model_construct(
                     session=str(uuid.uuid4()), full_name=full_name
-                )
+                ),
             )
         return user_dto

@@ -4,8 +4,8 @@ from .start import InitDbService
 from .user import RegisterOrLoginUserService
 
 __all__ = [
-    'RegisterOrLoginUserService',
-    'InitDbService',
-    'CreateInitialDeliveryTypesService',
-    'CreateDeliveryService',
+    "RegisterOrLoginUserService",
+    "InitDbService",
+    "CreateInitialDeliveryTypesService",
+    "CreateDeliveryService",
 ]

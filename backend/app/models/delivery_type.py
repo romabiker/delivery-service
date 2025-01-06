@@ -8,4 +8,5 @@ class DeliveryType(IdBase):
     """Посылки бывают 3х типов: одежда, электроника, разное.
     Типы должны храниться в отдельной таблице в базе данных.
     """
+
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)

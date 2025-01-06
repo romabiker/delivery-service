@@ -44,19 +44,19 @@ async def get_list(
     per_page: int = Query(default=100, ge=1, le=1000),
     order: str = Query(default="id"),
     delivery_type_id: int | None = Query(default=None),
-    is_calculated: bool | None = Query(default=None)
+    is_calculated: bool | None = Query(default=None),
 ) -> DeliveryPageNumberPagination:
     register_or_login_user = RegisterOrLoginUserService()
     user_dto = await register_or_login_user(db_session, session_id)
     response.set_cookie(key="session_id", value=user_dto.session)
 
-    filters = (Delivery.user_id == user_dto.id)
+    filters = Delivery.user_id == user_dto.id
     if delivery_type_id:
-        filters &= (Delivery.type_id == delivery_type_id)
+        filters &= Delivery.type_id == delivery_type_id
     if is_calculated is True:
-        filters &= (Delivery.cost_of_delivery_rub > 0)
+        filters &= Delivery.cost_of_delivery_rub > 0
     if is_calculated is False:
-        filters &= (Delivery.cost_of_delivery_rub == 0)
+        filters &= Delivery.cost_of_delivery_rub == 0
 
     total = await delivery_dao.count(db_session, filter_expr=filters)
     items = []
@@ -64,7 +64,9 @@ async def get_list(
         items = await delivery_dao.get_list(
             db_session,
             filter_expr=filters,
-            skip=(page - 1) * per_page, limit=per_page, order=order
+            skip=(page - 1) * per_page,
+            limit=per_page,
+            order=order,
         )
     return paginate_by_page_number(request, items, total, page, per_page)
 
@@ -85,4 +87,3 @@ async def get(
     if not delivery_dto:
         raise HTTPException(status_code=404, detail="Not found")
     return delivery_dto
-

@@ -19,6 +19,7 @@ class GetUsdExсhangeRateService(ServiceBase):
     Предоставляет актуальный курс доллара к рублю. Данные берутся из открытых источников в интернете.
     Используется кеширование для хранения и блокировка на внешний http запрос и обновлении данных в кеше.
     """
+
     base_headers: dict = {
         "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate",
@@ -82,11 +83,11 @@ class GetUsdExсhangeRateService(ServiceBase):
                 ex=self.usd_to_rub_redis_key_expire_sec,
             )
             await self.redis.set(self.usd_to_rub_redis_reserve_key, usd_to_rub)
-            logger.info('Updated usd_to_rub cache')
+            logger.info("Updated usd_to_rub cache")
         else:
-            logger.error('usd_to_rub is not found in exchange_data: %s', exchange_data)
+            logger.error("usd_to_rub is not found in exchange_data: %s", exchange_data)
         await self.release_lock()
-        
+
         return usd_to_rub
 
     async def get_exchange_data(self) -> dict:
@@ -99,7 +100,9 @@ class GetUsdExсhangeRateService(ServiceBase):
                 logger.error("Http Error updating usd exchange rate: %s", str(error))
             except JSONDecodeError as error:
                 logger.error(
-                    "Json Decode Error parsing usd exchange rate response: `%s` - %s", resp.text, str(error)
+                    "Json Decode Error parsing usd exchange rate response: `%s` - %s",
+                    resp.text,
+                    str(error),
                 )
 
     async def acquire_lock(self) -> bool:

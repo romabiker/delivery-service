@@ -14,12 +14,24 @@ logger = logging.getLogger(__name__)
 
 
 class CreateDeliveryService(ServiceBase):
-    async def __call__(self, session: AsyncSession, redis: aioredis.Redis, delivery_in: DeliveryApiInDTO, user_id: int) -> DeliveryDTO:
-        delivery_type_exists = await delivery_type_dao.exists(session, redis, delivery_in.type_id)
+    async def __call__(
+        self,
+        session: AsyncSession,
+        redis: aioredis.Redis,
+        delivery_in: DeliveryApiInDTO,
+        user_id: int,
+    ) -> DeliveryDTO:
+        delivery_type_exists = await delivery_type_dao.exists(
+            session, redis, delivery_in.type_id
+        )
         if not delivery_type_exists:
-            raise ValidationError(f'Delivery type does not exist: {delivery_in.type_id}')
+            raise ValidationError(
+                f"Delivery type does not exist: {delivery_in.type_id}"
+            )
 
-        delivery_create_dto = DeliveryCreateDTO(**delivery_in.model_dump(), user_id=user_id)
+        delivery_create_dto = DeliveryCreateDTO(
+            **delivery_in.model_dump(), user_id=user_id
+        )
         delivery_dto = await delivery_dao.create(session, delivery_create_dto)
         return delivery_dto
 

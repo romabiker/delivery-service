@@ -10,9 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class InitDbService(ServiceBase):
-    async def __call__(
-        self, session: AsyncSession
-    ) -> None:
+    async def __call__(self, session: AsyncSession) -> None:
         create_initial_delivery_types = CreateInitialDeliveryTypesService()
         await create_initial_delivery_types(session)
         return
