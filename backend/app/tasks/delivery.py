@@ -20,6 +20,8 @@ async def delivery_calculate_task(
 
 
 @broker.task(schedule=[{"cron": "*/5 * * * *"}])
-async def delivery_calculate_in_bulk_task(context: Annotated[Context, TaskiqDepends()],) -> None:
+async def delivery_calculate_in_bulk_task(
+    context: Annotated[Context, TaskiqDepends()],
+) -> None:
     delivery_calculate = DeliveryCalculateInBulkService(context.state.redis)
     await delivery_calculate()
