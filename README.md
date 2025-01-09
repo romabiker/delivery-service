@@ -78,3 +78,11 @@ Create `.env` file from  `.env.example`.
 docker compose up --build
 
 ```
+
+### Clear after
+
+```bash
+# delete the object created by docker-compose when you want to clean the development environment and recreate it from scratch.
+docker compose down --rmi all -v --remove-orphans
+
+```
