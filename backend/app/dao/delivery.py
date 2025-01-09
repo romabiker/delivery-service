@@ -25,17 +25,17 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
         )
         res = await db.execute(select_st)
         delivery = res.scalars().one_or_none()
-        deliveries_update_data = [
-            {
-                "id": delivery.id,
-                "cost_of_delivery_rub": calculate_cost_of_delivery(
-                    delivery, usd_to_rub
-                ),
-            }
-        ]
-
-        await db.execute(update(self.model), deliveries_update_data)
-        await db.commit()
+        if delivery:
+            deliveries_update_data = [
+                {
+                    "id": delivery.id,
+                    "cost_of_delivery_rub": calculate_cost_of_delivery(
+                        delivery, usd_to_rub
+                    ),
+                }
+            ]
+            await db.execute(update(self.model), deliveries_update_data)
+            await db.commit()
 
         return delivery is not None
 
