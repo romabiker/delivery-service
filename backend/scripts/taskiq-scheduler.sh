@@ -3,4 +3,4 @@
 set -e
 set -x
 
-taskiq scheduler app.tkq:scheduler
+taskiq scheduler app.tkq:scheduler app.tasks.delivery
