@@ -18,7 +18,7 @@ services:
       - .env
     environment:
       - MYSQL_PORT=${MYSQL_PORT}
-      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_DATABASE=${MYSQL_DB}
       - MYSQL_USER=${MYSQL_USER?Variable not set}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD?Variable not set}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?Variable not set}
