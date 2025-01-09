@@ -86,5 +86,7 @@ class Settings(BaseSettings):
             path=self.RABBIT_VHOST,
         )
 
+    AUTH_COOKIE_EXPIRE: int = 2 ** 31 - 1
+
 
 settings = Settings()  # type: ignore
