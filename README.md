@@ -53,7 +53,7 @@
 
 Если в процессе выполнения задания возникли какие-либо затруднения в решениях, то необходимо задокументировать обоснование этих решений, либо указать это в сопроводительном письме при передаче решения тестового задания.
 
-Ориентировочное время выполнения \- 10 часов. Максимальное \- 16 часов. Тестовое задание необходимо предоставить на почту hr@ra-delta.ru в виде ссылки на открытый репозиторий. Заголовок письма должен иметь вид "Тестовое Python разработчика: Имя Фамилия". Срок сдачи обсуждается индивидуально с HR.
+Ориентировочное время выполнения \- 10 часов. Максимальное \- 16 часов. 
 
 
 ## Development
@@ -70,6 +70,29 @@ This includes using Docker Compose, `.env` configurations, etc.
 ### Configure
 
 Create `.env` file from  `.env.example`.
+
+## Solution
+
+#### Реализован с использованием:
+
+* Fastapi async
+* Pydantic 2
+* Sqlalchemy 2 async
+* Docker Compose 2.32
+* Mysql (mariadb:10, aiomysql)
+* Redis 8 (redis[hiredis] async)
+* Rabbitmq 4 (aio-pika)
+* taskiq (asyncio celery implementation)
+* uv (10-100x faster than pip, written in Rust.)
+* ruff (10-100x faster than existing linters (like Flake8) and formatters (like Black))
+* pytest
+
+#### Пока не реализованы доп пункты задания:
+
+* Веб-интерфейс к приложению
+* Покрытие API тестами (пока частичное)
+* хранить лог расчётов стоимостей доставок в MongoDB
+* Создать роут привязки посылки к транспортной компании
 
 
 ### Just start
