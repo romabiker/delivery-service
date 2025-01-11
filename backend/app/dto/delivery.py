@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.api.pagination import PageNumberPagination
@@ -14,7 +12,11 @@ class DeliveryCreateDTO(BaseModel):
 
 
 class DeliveryUpdateDTO(BaseModel):
-    cost_of_delivery_rub: float
+    cost_of_delivery_rub: float = Field(ge=0)
+
+
+class DeliveryTransportCompanyUpdateDTO(BaseModel):
+    transport_company_id: int = Field(ge=0)
 
 
 class DeliveryDTO(BaseModel):
@@ -33,6 +35,7 @@ class DeliveryDTO(BaseModel):
     cost_of_content_usd: float
     cost_of_delivery_rub: float = 0
     type: DeliveryTypeDTO
+    transport_company_id: int | None
 
 
 class DeliveryApiInDTO(BaseModel):

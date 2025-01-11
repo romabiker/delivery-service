@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 from app.models.base import AsyncBase
 target_metadata = AsyncBase.metadata
 
-from app.models import DeliveryType, Delivery, User # noqa
+from app.models import DeliveryType, Delivery, User, TransportCompany # noqa
 from app.core.config import settings # noqa
 
 

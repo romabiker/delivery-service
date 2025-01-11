@@ -18,3 +18,7 @@ class Delivery(IdBase):
     type: Mapped["DeliveryType"] = relationship(  # noqa: F821
         "DeliveryType", lazy="joined"
     )
+    transport_company_id: Mapped[int] = mapped_column(
+        ForeignKey("transportcompanys.id", ondelete="SET NULL"),
+        nullable=True,
+    )

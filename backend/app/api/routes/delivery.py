@@ -6,6 +6,7 @@ from app.api.deps import RedisDep, SessionDep
 from app.api.pagination import paginate_by_page_number
 from app.dao import delivery_dao
 from app.dto import DeliveryApiInDTO, DeliveryDTO, DeliveryPageNumberPagination
+from app.dto.delivery import DeliveryTransportCompanyUpdateDTO
 from app.models import Delivery
 from app.service import CreateDeliveryService
 from app.tasks.delivery import delivery_calculate_task
@@ -98,4 +99,25 @@ async def get(
     delivery_dto = await delivery_dao.get(db_session, filter_expr=filters)
     if not delivery_dto:
         raise HTTPException(status_code=404, detail="Not found")
+    return delivery_dto
+
+
+@router.patch("/{delivery_id}/transport-company", response_model=DeliveryDTO)
+async def update_transport_company(
+    delivery_id: int,
+    delivery_data: DeliveryTransportCompanyUpdateDTO,
+    db_session: SessionDep,
+) -> DeliveryDTO:
+    is_ok = await delivery_dao.add_transport_company(
+        db_session, delivery_id, delivery_data
+    )
+    if not is_ok:
+        raise HTTPException(status_code=404, detail="Not found")
+    delivery_dto = await delivery_dao.get(
+        db_session,
+        filter_expr=and_(
+            Delivery.id == delivery_id,
+            Delivery.transport_company_id == delivery_data.transport_company_id,
+        ),
+    )
     return delivery_dto

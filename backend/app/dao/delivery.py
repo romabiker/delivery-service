@@ -8,6 +8,7 @@ from sqlalchemy.sql.elements import BinaryExpression, ColumnElement
 
 from app.dao.base import DAOBase
 from app.dto import DeliveryCreateDTO, DeliveryDTO, DeliveryUpdateDTO
+from app.dto.delivery import DeliveryTransportCompanyUpdateDTO
 from app.models import Delivery
 
 
@@ -18,10 +19,7 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
         usd_to_rub: float,
         delivery_id: int,
     ) -> bool:
-        select_st = (
-            select(self.model)
-            .where(self.model.id == delivery_id)
-        )
+        select_st = select(self.model).where(self.model.id == delivery_id)
         res = await db.execute(select_st)
         delivery = res.scalars().one_or_none()
         if delivery:
@@ -44,7 +42,12 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
         usd_to_rub: float,
         batch_size: int = 1000,
     ) -> int:
-        select_st = select(self.model).where(and_(Delivery.cost_of_delivery_rub == 0)).order_by("id").limit(batch_size)
+        select_st = (
+            select(self.model)
+            .where(and_(Delivery.cost_of_delivery_rub == 0))
+            .order_by("id")
+            .limit(batch_size)
+        )
         res = await db.execute(select_st)
         deliveries = res.scalars().all()
         deliveries_update_data = []
@@ -87,6 +90,35 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
 
         res = await db.execute(select_st)
         return res.scalars().all()
+
+    async def add_transport_company(
+        self,
+        db: AsyncSession,
+        delivery_id: int,
+        delivery_data: DeliveryTransportCompanyUpdateDTO,
+    ) -> bool:
+        """
+        Добавляет транспортную компанию, если доставка не занята другой транспортной компанией
+        """
+        select_st = (
+            select(self.model)
+            .where(
+                self.model.id == delivery_id, self.model.transport_company_id.is_(None)
+            )
+            .with_for_update(skip_locked=True)
+        )
+        res = await db.execute(select_st)
+        delivery = res.scalars().one_or_none()
+        if delivery:
+            deliveries_update_data = [
+                {
+                    "id": delivery.id,
+                    "transport_company_id": delivery_data.transport_company_id,
+                }
+            ]
+            await db.execute(update(self.model), deliveries_update_data)
+            await db.commit()
+        return delivery is not None
 
 
 def calculate_cost_of_delivery(delivery: Delivery, usd_to_rub):

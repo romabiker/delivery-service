@@ -15,7 +15,9 @@ async def login_or_register_by_cookie(
 ) -> UserDTO:
     register_or_login_user = RegisterOrLoginUserService()
     user_dto = await register_or_login_user(db_session, session_id)
-    response.set_cookie(key="session_id", value=user_dto.session, expires=settings.AUTH_COOKIE_EXPIRE)
+    response.set_cookie(
+        key="session_id", value=user_dto.session, expires=settings.AUTH_COOKIE_EXPIRE
+    )
     return user_dto
 
 
