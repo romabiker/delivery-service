@@ -1,12 +1,18 @@
+from asynch.cursors import DictCursor
 from fastapi import APIRouter, HTTPException, Query, Request
 from sqlalchemy import and_
 
 from app.api.auth import UserByCookieDep
-from app.api.deps import RedisDep, SessionDep
+from app.api.deps import ClickHouseDep, RedisDep, SessionDep
 from app.api.pagination import paginate_by_page_number
 from app.dao import delivery_dao
-from app.dto import DeliveryApiInDTO, DeliveryDTO, DeliveryPageNumberPagination
-from app.dto.delivery import DeliveryTransportCompanyUpdateDTO
+from app.dto import (
+    DeliveryApiInDTO,
+    DeliveryClickHouseStats,
+    DeliveryDTO,
+    DeliveryPageNumberPagination,
+    DeliveryTransportCompanyUpdateDTO,
+)
 from app.models import Delivery
 from app.service import CreateDeliveryService
 from app.tasks.delivery import delivery_calculate_task
@@ -87,6 +93,30 @@ async def get_list(
             order=order,
         )
     return paginate_by_page_number(request, items, total, page, per_page)
+
+
+@router.get("/stats", response_model=list[DeliveryClickHouseStats])
+async def get_stats(
+    clickhouse: ClickHouseDep,
+) -> list[DeliveryClickHouseStats]:
+    """
+    Статистика сгруппированная по дням и типу сумм стоимости доставки
+    """
+    async with clickhouse.cursor(cursor=DictCursor) as cursor:
+        await cursor.execute(
+            """
+            SELECT
+                date_trunc('day', created_at) as created,
+                type_id,
+                SUM(cost_of_delivery_rub) AS total_cost
+            FROM
+                deliveries
+            GROUP BY
+                created, type_id
+            ORDER BY created ASC;
+            """
+        )
+    return await cursor.fetchall()
 
 
 @router.get("/{delivery_id}", response_model=DeliveryDTO)

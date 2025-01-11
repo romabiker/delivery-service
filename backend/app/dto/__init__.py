@@ -1,8 +1,11 @@
 from .delivery import (
     DeliveryApiInDTO,
+    DeliveryClickHouseStats,
     DeliveryCreateDTO,
     DeliveryDTO,
+    DeliveryExportInClickhouseDTO,
     DeliveryPageNumberPagination,
+    DeliveryTransportCompanyUpdateDTO,
     DeliveryUpdateDTO,
 )
 from .delivery_type import DeliveryTypeCreateDTO, DeliveryTypeDTO, DeliveryTypeUpdateDTO
@@ -24,6 +27,9 @@ __all__ = [
     "DeliveryTypeCreateDTO",
     "DeliveryTypeDTO",
     "DeliveryTypeUpdateDTO",
+    "DeliveryTransportCompanyUpdateDTO",
+    "DeliveryExportInClickhouseDTO",
+    "DeliveryClickHouseStats",
     "TransportCompanyCreateDTO",
     "TransportCompanyDTO",
     "TransportCompanyUpdateDTO",

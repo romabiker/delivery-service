@@ -44,6 +44,7 @@ class DAOBase[
         skip: int = 0,
         limit: int = 100,
         order: str | None = None,
+        item_dto_cls_out: type[BaseModel] | None = None,
     ) -> list[ItemDTO]:
         select_st = select(self.model)
         if filter_expr is not None:
@@ -59,9 +60,8 @@ class DAOBase[
             select_st = select_st.limit(limit)
 
         res = await db.execute(select_st)
-        return [
-            self.item_dto_cls.model_validate(orm_obj) for orm_obj in res.scalars().all()
-        ]
+        item_dto_cls = item_dto_cls_out or self.item_dto_cls
+        return [item_dto_cls.model_validate(orm_obj) for orm_obj in res.scalars().all()]
 
     async def create(self, db: AsyncSession, obj_in: CreateDTO) -> ItemDTO:
         db_obj = self.model(**obj_in.model_dump())

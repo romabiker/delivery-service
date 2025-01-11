@@ -120,6 +120,23 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
             await db.commit()
         return delivery is not None
 
+    async def update_is_pushed_to_clickhouse(
+        self,
+        db: AsyncSession,
+        deliveries_items: list[DeliveryDTO],
+    ) -> None:
+        deliveries_update_data = []
+        for delivery in deliveries_items:
+            deliveries_update_data.append(
+                {
+                    "id": delivery.id,
+                    "is_pushed_to_clickhouse": True,
+                }
+            )
+        if deliveries_update_data:
+            await db.execute(update(Delivery), deliveries_update_data)
+            await db.commit()
+
 
 def calculate_cost_of_delivery(delivery: Delivery, usd_to_rub):
     return (delivery.weight_kg * 0.5 + delivery.cost_of_content_usd * 0.01) * usd_to_rub

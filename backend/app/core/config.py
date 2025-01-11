@@ -1,7 +1,7 @@
 import secrets
 from typing import Literal
 
-from pydantic import MySQLDsn, RedisDsn, computed_field
+from pydantic import ClickHouseDsn, MySQLDsn, RedisDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from yarl import URL
@@ -87,6 +87,23 @@ class Settings(BaseSettings):
         )
 
     AUTH_COOKIE_EXPIRE: int = 2**31 - 1
+
+    CLICKHOUSE_HOST: str = "clickhouse"
+    CLICKHOUSE_PORT: int = 9000
+    CLICKHOUSE_USER: str = ""
+    CLICKHOUSE_PASSWORD: str = ""
+    CLICKHOUSE_SCHEMA: str = "clickhouse"
+    CLICKHOUSE_PROTOCOL: str = "http"
+
+    @property
+    def CLICKHOUSE_URL(self) -> URL:
+        return URL.build(
+            scheme=self.CLICKHOUSE_SCHEMA,
+            host=self.CLICKHOUSE_HOST,
+            port=self.CLICKHOUSE_PORT,
+            user=self.CLICKHOUSE_USER,
+            password=self.CLICKHOUSE_PASSWORD,
+        )
 
 
 settings = Settings()  # type: ignore

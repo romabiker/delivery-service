@@ -1,4 +1,6 @@
-from sqlalchemy import Float, ForeignKey, String
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import IdBase
@@ -21,4 +23,10 @@ class Delivery(IdBase):
     transport_company_id: Mapped[int] = mapped_column(
         ForeignKey("transportcompanys.id", ondelete="SET NULL"),
         nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    is_pushed_to_clickhouse: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
     )

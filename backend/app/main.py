@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
 from app.api.main import api_router
+from app.core.clickhouse.lifespan import init_clickhouse, shutdown_clickhouse
 from app.core.config import settings
 from app.core.db import async_engine
 from app.core.rabbit.lifespan import init_rabbit, shutdown_rabbit
@@ -18,6 +19,7 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 async def lifespan(app: FastAPI):
     from app.tkq import broker
 
+    await init_clickhouse(app.state)
     app.state.redis = await connect_redis()
     init_rabbit(app)
     if not broker.is_worker_process:
@@ -28,6 +30,7 @@ async def lifespan(app: FastAPI):
     if not broker.is_worker_process:
         await broker.shutdown()
 
+    await shutdown_clickhouse(app.state)
     await shutdown_rabbit(app)
     await async_engine.dispose()
     await app.state.redis.close()

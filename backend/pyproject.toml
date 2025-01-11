@@ -19,12 +19,13 @@ dependencies = [
     "tenacity<9.0.0,>=8.2.3",
     "redis[hiredis]<6.0.0,>=5.2.1",
     "multidict<7.0.0,>=6.1.0",
-    "taskiq",
-    "aio-pika",
-    'taskiq-fastapi',
-    'taskiq-redis',
-    'taskiq-aio-pika',
-    'pyzmq'
+    "taskiq<1.0.0,>=0.11.10",
+    "aio-pika<10.0.0,>=9.5.4",
+    "taskiq-fastapi<1.0.0,>=0.3.3",
+    "taskiq-redis<2.0.0,>=1.0.2",
+    "taskiq-aio-pika<1.0.0,>=0.4.1",
+    "pyzmq<27.0.0,>=26.2.0",
+    "asynch<1.0.0,>=0.2.5"
 ]
 
 [tool.uv]

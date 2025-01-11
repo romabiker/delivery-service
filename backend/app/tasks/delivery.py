@@ -2,9 +2,10 @@ from typing import Annotated
 
 from taskiq import Context, TaskiqDepends
 
-from app.service.delivery import (
+from app.service import (
     DeliveryCalculateInBulkService,
     DeliveryCalculateService,
+    DeliveryExportInClickhouseService,
 )
 from app.tkq import broker
 
@@ -25,3 +26,11 @@ async def delivery_calculate_in_bulk_task(
 ) -> None:
     delivery_calculate = DeliveryCalculateInBulkService(context.state.redis)
     await delivery_calculate()
+
+
+@broker.task(schedule=[{"cron": "*/30 * * * *"}])
+async def export_delivery_in_clickhouse(
+    context: Annotated[Context, TaskiqDepends()],
+) -> None:
+    delivery_export = DeliveryExportInClickhouseService()
+    await delivery_export(context.state.clickhouse)

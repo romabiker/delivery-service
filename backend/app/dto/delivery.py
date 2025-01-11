@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.api.pagination import PageNumberPagination
@@ -35,7 +37,9 @@ class DeliveryDTO(BaseModel):
     cost_of_content_usd: float
     cost_of_delivery_rub: float = 0
     type: DeliveryTypeDTO
+    type_id: int
     transport_company_id: int | None
+    created_at: datetime
 
 
 class DeliveryApiInDTO(BaseModel):
@@ -47,3 +51,20 @@ class DeliveryApiInDTO(BaseModel):
 
 class DeliveryPageNumberPagination(PageNumberPagination):
     items: list[DeliveryDTO] = Field(default_factory=list)
+
+
+class DeliveryExportInClickhouseDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    type_id: int
+    transport_company_id: int | None
+    weight_kg: float
+    cost_of_content_usd: float
+    cost_of_delivery_rub: float = 0
+    created_at: datetime
+
+
+class DeliveryClickHouseStats(BaseModel):
+    created: datetime
+    type_id: int
+    total_cost: float

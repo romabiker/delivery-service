@@ -82,6 +82,7 @@ Create `.env` file from  `.env.example`.
 * Mysql (mariadb:10, aiomysql)
 * Redis 8 (redis[hiredis] async)
 * Rabbitmq 4 (aio-pika)
+* ClickHouse
 * taskiq (asyncio celery implementation)
 * uv (10-100x faster than pip, written in Rust.)
 * ruff (10-100x faster than existing linters (like Flake8) and formatters (like Black))
@@ -91,7 +92,11 @@ Create `.env` file from  `.env.example`.
 
 * Веб-интерфейс к приложению
 * Покрытие API тестами (пока частичное)
-* хранить лог расчётов стоимостей доставок в MongoDB
+
+#### Отличия в реализации:
+
+* Хранить лог расчётов стоимостей доставок в MongoDB заменен на выгрузку логов расчетов в Clickhouse. Добавлено роут для отображения
+статистики (сумм стоимости доставки, сгруппированные по дням и типу)
 
 
 ### Just start

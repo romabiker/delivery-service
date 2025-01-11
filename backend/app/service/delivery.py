@@ -1,12 +1,20 @@
 import logging
 
+from asynch.cursors import DictCursor
 from pydantic import ValidationError
 from redis import asyncio as aioredis
+from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import async_session_maker
 from app.dao import delivery_dao, delivery_type_dao
-from app.dto import DeliveryApiInDTO, DeliveryCreateDTO, DeliveryDTO
+from app.dto import (
+    DeliveryApiInDTO,
+    DeliveryCreateDTO,
+    DeliveryDTO,
+    DeliveryExportInClickhouseDTO,
+)
+from app.models import Delivery
 from app.service.base import ServiceBase
 from app.service.exchange_rate import GetUsdExсhangeRateService
 
@@ -84,3 +92,41 @@ class DeliveryCalculateService(ServiceBase):
                 session, usd_to_rub, delivery_id
             )
         return is_calculated
+
+
+class DeliveryExportInClickhouseService(ServiceBase):
+    async def __call__(self, clickhouse, batch_size: int = 1000) -> None:
+        logger.info("Start export in Clickhouse")
+        while True:
+            async with async_session_maker() as session:
+                deliveries_items = await delivery_dao.get_list(
+                    session,
+                    and_(
+                        Delivery.is_pushed_to_clickhouse == False,
+                        Delivery.cost_of_delivery_rub >= 0,
+                        Delivery.transport_company_id.is_not(None),
+                    ),
+                    order="id",
+                    limit=batch_size,
+                )
+                if not deliveries_items:
+                    break
+
+                deliveries_out = [
+                    DeliveryExportInClickhouseDTO.model_validate(item).model_dump()
+                    for item in deliveries_items
+                ]
+                print(deliveries_out)
+                async with clickhouse.cursor(cursor=DictCursor) as cursor:
+                    await cursor.execute(
+                        """INSERT INTO deliveries (type_id,transport_company_id,weight_kg,cost_of_content_usd,cost_of_delivery_rub,created_at) VALUES""",
+                        deliveries_out,
+                    )
+                #     {'type_id': 1, 'transport_company_id': 1, 'weight_kg': 10.0, 'cost_of_content_usd': 10.0, 'cost_of_delivery_rub': 519.764, 'created_at': '2025-01-11T09:27:33'}
+                # await clickhouse.close()
+                await delivery_dao.update_is_pushed_to_clickhouse(
+                    session, deliveries_items
+                )
+                logger.info(f"Exported {len(deliveries_items)} items")
+
+        logger.info("Finished export in Clickhouse")

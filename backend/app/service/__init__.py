@@ -1,4 +1,9 @@
-from .delivery import CreateDeliveryService
+from .delivery import (
+    CreateDeliveryService,
+    DeliveryCalculateInBulkService,
+    DeliveryCalculateService,
+    DeliveryExportInClickhouseService,
+)
 from .delivery_types import CreateInitialDeliveryTypesService
 from .start import InitDbService
 from .user import RegisterOrLoginUserService
@@ -8,4 +13,7 @@ __all__ = [
     "InitDbService",
     "CreateInitialDeliveryTypesService",
     "CreateDeliveryService",
+    "DeliveryExportInClickhouseService",
+    "DeliveryCalculateInBulkService",
+    "DeliveryCalculateService",
 ]
