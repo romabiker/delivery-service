@@ -21,7 +21,6 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
         select_st = (
             select(self.model)
             .where(self.model.id == delivery_id)
-            .with_for_update(skip_locked=True)
         )
         res = await db.execute(select_st)
         delivery = res.scalars().one_or_none()
@@ -45,12 +44,9 @@ class DeliveryDAO(DAOBase[Delivery, DeliveryCreateDTO, DeliveryUpdateDTO, Delive
         usd_to_rub: float,
         batch_size: int = 1000,
     ) -> int:
-        deliveries = await self._select_for_update(
-            db,
-            filter_expr=and_(Delivery.cost_of_delivery_rub == 0),
-            limit=batch_size,
-            order="id",
-        )
+        select_st = select(self.model).where(and_(Delivery.cost_of_delivery_rub == 0)).order_by("id").limit(batch_size)
+        res = await db.execute(select_st)
+        deliveries = res.scalars().all()
         deliveries_update_data = []
         for delivery in deliveries:
             deliveries_update_data.append(
