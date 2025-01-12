@@ -10,6 +10,7 @@ from app.core.db import async_session_maker
 from app.dao import delivery_dao, delivery_type_dao
 from app.dto import (
     DeliveryApiInDTO,
+    DeliveryClickHouseStats,
     DeliveryCreateDTO,
     DeliveryDTO,
     DeliveryExportInClickhouseDTO,
@@ -95,6 +96,9 @@ class DeliveryCalculateService(ServiceBase):
 
 
 class DeliveryExportInClickhouseService(ServiceBase):
+    delivery_columns = "type_id,transport_company_id,weight_kg,cost_of_content_usd,cost_of_delivery_rub,created_at"
+    insert_sql = f"INSERT INTO deliveries ({delivery_columns}) VALUES"
+
     async def __call__(self, clickhouse, batch_size: int = 1000) -> None:
         logger.info("Start export in Clickhouse")
         while True:
@@ -116,17 +120,33 @@ class DeliveryExportInClickhouseService(ServiceBase):
                     DeliveryExportInClickhouseDTO.model_validate(item).model_dump()
                     for item in deliveries_items
                 ]
-                print(deliveries_out)
                 async with clickhouse.cursor(cursor=DictCursor) as cursor:
                     await cursor.execute(
-                        """INSERT INTO deliveries (type_id,transport_company_id,weight_kg,cost_of_content_usd,cost_of_delivery_rub,created_at) VALUES""",
+                        self.insert_sql,
                         deliveries_out,
                     )
-                #     {'type_id': 1, 'transport_company_id': 1, 'weight_kg': 10.0, 'cost_of_content_usd': 10.0, 'cost_of_delivery_rub': 519.764, 'created_at': '2025-01-11T09:27:33'}
-                # await clickhouse.close()
                 await delivery_dao.update_is_pushed_to_clickhouse(
                     session, deliveries_items
                 )
                 logger.info(f"Exported {len(deliveries_items)} items")
 
         logger.info("Finished export in Clickhouse")
+
+
+class DeliveryStatsService(ServiceBase):
+    async def __call__(self, clickhouse) -> list[DeliveryClickHouseStats]:
+        async with clickhouse.cursor(cursor=DictCursor) as cursor:
+            await cursor.execute(
+                """
+                SELECT
+                    date_trunc('day', created_at) as created,
+                    type_id,
+                    SUM(cost_of_delivery_rub) AS total_cost
+                FROM
+                    deliveries
+                GROUP BY
+                    created, type_id
+                ORDER BY created ASC;
+                """
+            )
+        return await cursor.fetchall()

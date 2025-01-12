@@ -3,6 +3,7 @@ from .delivery import (
     DeliveryCalculateInBulkService,
     DeliveryCalculateService,
     DeliveryExportInClickhouseService,
+    DeliveryStatsService,
 )
 from .delivery_types import CreateInitialDeliveryTypesService
 from .start import InitDbService
@@ -16,4 +17,5 @@ __all__ = [
     "DeliveryExportInClickhouseService",
     "DeliveryCalculateInBulkService",
     "DeliveryCalculateService",
+    "DeliveryStatsService",
 ]

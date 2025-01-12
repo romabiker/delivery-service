@@ -14,7 +14,7 @@ from app.dto import (
     DeliveryTransportCompanyUpdateDTO,
 )
 from app.models import Delivery
-from app.service import CreateDeliveryService
+from app.service import CreateDeliveryService, DeliveryStatsService
 from app.tasks.delivery import delivery_calculate_task
 
 router = APIRouter(tags=["delivery"], prefix="/delivery")
@@ -102,21 +102,8 @@ async def get_stats(
     """
     Статистика сгруппированная по дням и типу сумм стоимости доставки
     """
-    async with clickhouse.cursor(cursor=DictCursor) as cursor:
-        await cursor.execute(
-            """
-            SELECT
-                date_trunc('day', created_at) as created,
-                type_id,
-                SUM(cost_of_delivery_rub) AS total_cost
-            FROM
-                deliveries
-            GROUP BY
-                created, type_id
-            ORDER BY created ASC;
-            """
-        )
-    return await cursor.fetchall()
+    delivery_stats_service = DeliveryStatsService()
+    return await delivery_stats_service(clickhouse)
 
 
 @router.get("/{delivery_id}", response_model=DeliveryDTO)
