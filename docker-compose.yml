@@ -7,7 +7,7 @@ services:
     container_name: delivery_mysql
     restart: always
     volumes:
-      - ./database/mysql_data:/var/lib/mysql
+      - delivery-db-data:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-uroot", "-p${MYSQL_ROOT_PASSWORD}" ]
       interval: 10s
@@ -179,10 +179,9 @@ services:
 
   clickhouse:
     image: "clickhouse/clickhouse-server:latest-alpine"
-    ports:
-      - 9000:9000
-      - 8123:8123
+    restart: always
     volumes:
+      - delivery-clickhouse-data:/var/lib/clickhouse/
       - ./docker/clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: wget --no-verbose --tries=1 http://127.0.0.1:8123/ping || exit 1
@@ -192,4 +191,5 @@ services:
 
 
 volumes:
-  app-db-data:
+  delivery-db-data:
+  delivery-clickhouse-data:

@@ -49,6 +49,12 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+  clickhouse:
+    restart: "no"
+    ports:
+      - 9000:9000
+      - 8123:8123
+
   jupyterlab:
     <<: *backend
     container_name: delivery-jupyterlab
