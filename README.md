@@ -56,15 +56,6 @@
 Ориентировочное время выполнения \- 10 часов. Максимальное \- 16 часов. 
 
 
-## Development
-
-Backend docs: [backend/README.md](./backend/README.md).
-
-
-General development docs: [development.md](./development.md).
-
-This includes using Docker Compose, `.env` configurations, etc.
-
 ## Quick start
 
 ### Configure
@@ -113,3 +104,14 @@ docker compose up --build
 docker compose down --rmi all -v --remove-orphans
 
 ```
+
+### Development URLs
+
+Development URLs, for local development.
+
+
+Backend: http://localhost:8000
+
+Automatic Interactive Docs (Swagger UI): http://localhost:8000/docs
+
+Automatic Alternative Docs (ReDoc): http://localhost:8000/redoc
