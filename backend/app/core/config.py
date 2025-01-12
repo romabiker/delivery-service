@@ -105,5 +105,8 @@ class Settings(BaseSettings):
             password=self.CLICKHOUSE_PASSWORD,
         )
 
+    DELIVERY_TASK_EXPORT_IN_CLICKHOUSE_CRON: str = "*/1 * * * *"  # every minute
+    DELIVERY_TASK_CALC_IN_BULK_CRON: str = "*/5 * * * *"  # every 5 minutes
+
 
 settings = Settings()  # type: ignore
